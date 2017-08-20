@@ -1,0 +1,262 @@
+
+dat<-read.csv(file="d:/casualities.csv")
+dat[1:10,]  
+attach(dat) 
+names(dat) 
+
+Y <-No..of.casualties # No..of.casualties will be used many times in this analysis
+#so it was given a new name 'Y' for easy and fast use
+
+length(Y)  
+is.na(Y)
+
+#listed all attribute's (factors)  levels
+levels(Users)  
+levels(Gender)
+levels(Age)
+levels(Killed)  # column 'Killed'  should be renamed as it's causing a bit of a confusion
+# Killed's levels are killed and injured..
+Year=as.factor(Year)
+levels(Year)
+
+
+### divide no of casualties into two groups 
+Y.i =Y[Killed == "Injured Cassualties (Number)"]    
+Y.k =Y[Killed == "Killed Casualties (Number)"]
+
+##Distributions
+
+jpeg("d:/histograms.jpeg")
+par(mfrow=c(1,2)) # create side by side hist
+hist(Y.i, freq=FALSE, col="lightgrey", ylim=c(0,0.02), main="Histogram of Injured casualities")
+lines(density(Y.i), lwd=2, col = "orange")
+hist(Y.k, freq=FALSE, col="lightgrey", ylim=c(0,0.7), main="Histogram of Killed casualities")
+lines(density(Y.k), lwd=2, from = 0, to = max(Y.k), col = "orange")
+
+dev.off()
+
+#### descrptive statistics for injured & killed by user, gender and age
+
+aggregate(Y~Users,FUN="sum")
+sum(Y)
+sum(Y.i)
+sum(Y.k)
+
+aggregate(Y.i~Users[Killed == "Injured Cassualties (Number)"],FUN="sum")
+aggregate(Y.i~Users[Killed == "Injured Cassualties (Number)"],FUN="min") #in next lines min and max were replaced with range
+#it shows min and max in 2 columns
+aggregate(Y.i~Users[Killed == "Injured Cassualties (Number)"],FUN="max")
+aggregate(Y.i~Users[Killed == "Injured Cassualties (Number)"],FUN="mean")
+aggregate(Y.i~Users[Killed == "Injured Cassualties (Number)"],FUN="median")
+
+aggregate(Y.k~Users[Killed == "Killed Casualties (Number)"],FUN="sum")
+aggregate(Y.k~Users[Killed == "Killed Casualties (Number)"],FUN="range")
+aggregate(Y.k~Users[Killed == "Killed Casualties (Number)"],FUN="mean")
+aggregate(Y.k~Users[Killed == "Killed Casualties (Number)"],FUN="median")
+
+aggregate(Y.i~Gender[Killed == "Injured Cassualties (Number)"],FUN="sum")
+aggregate(Y.i~Gender[Killed == "Injured Cassualties (Number)"],FUN="range")
+aggregate(Y.i~Gender[Killed == "Injured Cassualties (Number)"],FUN="mean")
+aggregate(Y.i~Gender[Killed == "Injured Cassualties (Number)"],FUN="median")
+
+aggregate(Y.k~Gender[Killed == "Killed Casualties (Number)"],FUN="sum")
+aggregate(Y.k~Gender[Killed == "Killed Casualties (Number)"],FUN="range")
+aggregate(Y.k~Gender[Killed == "Killed Casualties (Number)"],FUN="mean")
+aggregate(Y.k~Gender[Killed == "Killed Casualties (Number)"],FUN="median")
+
+
+aggregate(Y.k~Age[Killed == "Killed Casualties (Number)"],FUN="sum")
+aggregate(Y.k~Age[Killed == "Killed Casualties (Number)"],FUN="mean")
+
+##########
+
+#Statistical series
+
+#Injured Series 
+#broken down by 13 classes and shown number of observations in each class 
+
+ii=hist(Y.i)
+str(ii) 
+
+stat.series.i=cbind(ii$breaks[2:14], ii$mids, ii$counts, ii$density)
+colnames(stat.series.i)=c("End of class", "midclass", "counts", "frequency")
+stat.series.i #wynik
+
+
+# Killed Series 
+k=hist(Y.k)
+str(k) 
+
+stat.series.k=cbind(k$breaks[2:14], k$mids, k$counts, k$density)
+colnames(stat.series.k)=c("End of class", "midclass", "counts", "frequency")
+stat.series.k 
+
+################
+
+summary(dat)	#-summarise data; in this case it will show number of observations
+
+#Statistics
+#min, max, mean, variance and sd
+ 
+tab=rbind(c(min(Y), max(Y), max(Y)-min(Y), mean(Y), var(Y), sd(Y)), 
+c(min(Y.i), max(Y.i), max(Y.i)-min(Y.i), mean(Y.i), var(Y.i), sd(Y.i)),
+c(min(Y.k), max(Y.k), max(Y.k)-min(Y.k), mean(Y.k), var(Y.k), sd(Y.k)))
+colnames(tab)=c("min", "max", "range", "mean", "var", "sd")
+rownames(tab)=c("All", "Injured", "Killed")
+tab
+
+
+##############
+# show values for  males and females
+subsetMales = subset(dat, Gender == "Male")   #-list of values for males; with all columns
+subsetMales
+
+numMales = length(subsetMales$Gender) #–count males
+numMales
+
+subsetFemales = subset(dat, Gender == "Female")
+subsetFemales
+
+numFemales = length(subsetFemales$Gender)
+numFemales
+
+
+#Figure
+#par-parameter
+#mfrow -2 row, 1 column
+#histogram for males and females no of casualities 
+#v -vertical line - shows mean /red for male and female, blue-female etc/
+#abline() Biecek p.65
+
+par(mfrow=c(2,1)) # create a 2x1 plotting area
+hist(subsetMales[,6], breaks=30, main="Male casualties ")
+abline(v=mean(Y), col="red", lty=2, lwd=2)
+abline(v=mean(subsetFemales[,6]), col="blue")
+abline(v=mean(subsetMales[,6]), col="yellow")
+hist(subsetFemales[,6], breaks=30, main="Female casualties ")
+abline(v=mean(Y), col="red", lty=2, lwd=2)
+abline(v=mean(subsetFemales[,6]), col="blue")
+abline(v=mean(subsetMales[,6]), col="yellow")
+
+dev.off()
+
+	   	   	   	   
+#############Boxplots
+#
+
+#Figure
+pdf("d:/boxplot.pdf")
+par(mfrow=c(2,1)) # 2 rows, 1 coumn
+boxplot(Y ~ Users, main = "Injured Casualties", subset = Killed == "Injured Cassualties (Number)", xlab = "Users", ylab = "Number", col="pink")
+
+boxplot(Y ~ Users, main = "Killed Casualties", subset = Killed == "Killed Casualties (Number)", xlab = "Users", ylab = "Number", col="blue")
+
+dev.off()
+
+
+
+###### Hypothesis testing
+
+###divide data into two groups 
+
+subsetI = subset(dat, Killed == "Injured Cassualties (Number)")   #-list of values for injured; with all columns
+subsetI[1:10,]
+
+subsetK = subset(dat, Killed == "Killed Casualties (Number)")
+subsetK[1:10,]
+
+summary(subsetK)
+summary(subsetI)
+
+
+#ggplot
+#injured + killed 
+#red dots - median
+
+library(ggplot2)
+
+df <-aggregate(Y~Age, FUN="mean")
+df1 <-aggregate(Y~Age, FUN="sd")
+names(df)
+ 
+gg <-ggplot(dat) + geom_point(aes(x = Age, y = Y)) + geom_point(data=df, aes(x = df[,1], y = df[,2]), colour = 'red', size = 3) +
+geom_errorbar(data=df, aes(x = df[,1], y = df[,2], ymin = df[,2]-df1[,2], ymax = df[,2]+df1[,2]),
+colour = 'blue', width = 0.2, size=1)+ylab("Casualties")
+gg
+
+
+
+### t test. gender
+
+plot(Y.i~Gender[Killed == "Injured Cassualties (Number)"])
+t.test(Y.i~Gender[Killed == "Injured Cassualties (Number)"], alternative="two.sided") 
+# testing if mean for Male and Female injured are different
+
+t.test(Y.k~Gender[Killed == "Killed Casualties (Number)"], alternative="two.sided") 
+# testing if mean for Male and Female killed are different
+
+
+
+## ANOVA .Users
+
+levels(subsetI$Users)
+length(levels(subsetI$Users))
+plot(Y.i ~ subsetI$Users)
+
+
+# ANOVA test - aov()
+results.i = aov(Y.i ~subsetI$Users)
+summary(results.i)
+
+
+results.k = aov(Y.k ~subsetK$Users)
+summary(results.k)
+
+
+############### time series
+
+#time series for injured
+#convert vector into an R time series object
+ts.i=aggregate(Y.i, by=list(subsetI$Year), sum)
+ts.i
+summary(ts.i)
+
+#time series for killed
+ts.k=aggregate(Y.k, by=list(subsetI$Year), sum)
+ts.k
+summary(ts.k)
+
+
+## time series plot
+
+
+#ts.i$x
+#plot(ts.i$x)
+#plot(ts.i$x, type="l")
+#plot(ts.i$x, type="b")
+#base - red
+#numbers +sd  - green
+#numbers -sd  - green
+
+par(mfrow=c(1,2))
+upper <- ts.i$x + sd(ts.i$x)
+lower <- ts.i$x - sd(ts.i$x)
+plot(ts.i$x, ylim = c(min(lower),max(upper)), axes=F,xlab = "", ylab = "Injured",type = "b",  lwd = 3, col=2)
+lines(1:length(ts.i$x), upper, lty=2, pch=3,lwd = 2, col=3, type = "b")
+lines(1:length(ts.i$x), lower, lty=2, pch=3,lwd = 2, col=4, type = "b")
+axis(2)
+axis(1, at = 1:length(ts.i$x), labels=levels(as.factor(Year)))
+
+upper <- ts.k$x + sd(ts.k$x)
+lower <- ts.k$x - sd(ts.k$x)
+plot(ts.k$x, ylim = c(min(lower),max(upper)), axes=F,xlab = "", ylab = "Killed",type = "b",  lwd = 3, col=2)
+lines(1:length(ts.k$x), upper, lty=2, pch=3,lwd = 2, col=3, type = "b")
+lines(1:length(ts.k$x), lower, lty=2, pch=3,lwd = 2, col=4, type = "b")
+axis(2)
+axis(1, at = 1:length(ts.k$x), labels=levels(as.factor(Year)))
+
+
+
+######
+
+
