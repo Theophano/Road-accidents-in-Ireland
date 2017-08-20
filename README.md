@@ -10,3 +10,4 @@ The statistical analysis was performed using R Statistical Software ver. 3.3.2.
 
 
 The raw data was sourced from the Road Safety Authority website http://www.cso.ie/px/pxeirestat/pssn/rsa/Database/RSA/Road%20Safety%20Statistics/Road%20Safety%20Statistics.asp 
+ROA16: Number of Casualties by Age Group, Sex, Road User Type, Year and Statistic’
